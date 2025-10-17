@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PaypalButton from './PaypalButton';
+import PayPalButton from "./PayPalButton";
+
 
 const Checkout = () => {
   const navigate = useNavigate();
