@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const FilterSideBar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
     category: "",
@@ -18,20 +17,14 @@ const FilterSideBar = () => {
 
   const [priceRange, setPriceRange] = useState([0, 100]);
 
-  const categories = ["Top wear", "Bottom wear"];
+  const categories = ["Top Wear", "Bottom Wear"];
   const colors = ["red", "blue", "green", "black", "yellow", "grey", "beige", "navy"];
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const materials = ["Cotton", "Wool", "Denim", "Silk", "Linen", "Viscose", "Fleece"];
-  const brands = [
-    "Urban Threads",
-    "Modern Fit",
-    "Street Style",
-    "Beach Breeze",
-    "Fashionista",
-    "ChicStyle",
-  ];
-  const genders = ["Male", "Female"];
+  const brands = ["Urban Threads", "Modern Fit", "Street Style", "Beach Breeze", "Fashionista", "ChicStyle"];
+  const genders = ["Men", "Women"];
 
+  // Load filters from URL on mount
   useEffect(() => {
     const params = Object.fromEntries([...searchParams]);
     setFilters({
@@ -41,10 +34,10 @@ const FilterSideBar = () => {
       size: params.size ? params.size.split(",") : [],
       material: params.material ? params.material.split(",") : [],
       brand: params.brand ? params.brand.split(",") : [],
-      minPrice: params.minPrice || 0,
-      maxPrice: params.maxPrice || 100,
+      minPrice: params.minPrice ? Number(params.minPrice) : 0,
+      maxPrice: params.maxPrice ? Number(params.maxPrice) : 100,
     });
-    setPriceRange([0, params.maxPrice || 100]);
+    setPriceRange([0, params.maxPrice ? Number(params.maxPrice) : 100]);
   }, [searchParams]);
 
   const handleFilterChange = (e) => {
@@ -61,9 +54,17 @@ const FilterSideBar = () => {
       newFilters[name] = value;
     } else if (type === "range") {
       setPriceRange([0, value]);
-      newFilters.maxPrice = value;
+      newFilters.maxPrice = Number(value);
     }
 
+    setFilters(newFilters);
+    updateURLparams(newFilters);
+  };
+
+  const handlePriceChange = (e) => {
+    const newPrice = e.target.value;
+    setPriceRange([0, newPrice]);
+    const newFilters = { ...filters, maxPrice: Number(newPrice) };
     setFilters(newFilters);
     updateURLparams(newFilters);
   };
@@ -72,22 +73,12 @@ const FilterSideBar = () => {
     const params = new URLSearchParams();
     Object.keys(newFilters).forEach((key) => {
       if (Array.isArray(newFilters[key]) && newFilters[key].length > 0) {
-        params.append(key, newFilters[key].join(","));
-      } else if (newFilters[key]) {
-        params.append(key, newFilters[key]);
+        params.set(key, newFilters[key].join(","));
+      } else if (newFilters[key] !== "" && newFilters[key] !== null && newFilters[key] !== undefined) {
+        params.set(key, newFilters[key]);
       }
     });
-    setSearchParams(params);
-    navigate(`?${params.toString()}`);
-  };
-
-  // ✅ Corrected price handler
-  const handlePriceChange = (e) => {
-    const newPrice = e.target.value;
-    setPriceRange([0, newPrice]);
-    const newFilters = { ...filters, minPrice: 0, maxPrice: newPrice };
-    setFilters(newFilters); // ✅ fixed this line
-    updateURLparams(newFilters);
+    setSearchParams(params); // ✅ Only this is needed
   };
 
   return (
@@ -138,17 +129,14 @@ const FilterSideBar = () => {
             <button
               key={color}
               type="button"
-              onClick={() => {
-                const fakeEvent = {
-                  target: { name: "color", value: color, type: "radio" },
-                };
-                handleFilterChange(fakeEvent);
-              }}
+              onClick={() =>
+                handleFilterChange({ target: { name: "color", value: color, type: "radio" } })
+              }
               className={`w-8 h-8 rounded-full border cursor-pointer transition hover:scale-105 ${
                 filters.color === color ? "ring-2 ring-blue-500" : "border-gray-300"
               }`}
               style={{ backgroundColor: color }}
-            ></button>
+            />
           ))}
         </div>
       </div>
@@ -212,7 +200,6 @@ const FilterSideBar = () => {
         <label className="block text-gray-600 font-medium mb-2">Price Range</label>
         <input
           type="range"
-          name="priceRange"
           min={0}
           max={100}
           value={priceRange[1]}

@@ -18,7 +18,7 @@ const products = [
     gender: "Men",
     images: [
       {
-        url: "https://picsum.photos/500/500?random=39",
+        url: "http://localhost:9000/images/Black_Tshirt.webp",
         altText: "Classic Oxford Button-Down Shirt Front View",
       },
       {
@@ -914,29 +914,30 @@ const products = [
     numReviews: 26,
   },
   {
-    name: "Ruffle-Sleeve Blouse",
-    description:
-      "A lightweight ruffle-sleeve blouse with a flattering fit. Perfect for a feminine touch to any outfit.",
-    price: 45,
-    discountPrice: 40,
-    countInStock: 20,
-    sku: "TW-W-008",
-    category: "Top Wear",
-    brand: "FeminineWear",
-    sizes: ["S", "M", "L"],
-    colors: ["White", "Navy", "Lavender"],
-    collections: "Summer Collection",
-    material: "Viscose",
-    gender: "Women",
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=36",
-        altText: "Ruffle-Sleeve Blouse",
-      },
-    ],
-    rating: 4.5,
-    numReviews: 19,
-  },
+  name: "Ruffle-Sleeve Blouse",
+  description:
+    "A lightweight ruffle-sleeve blouse with a flattering fit. Perfect for a feminine touch to any outfit.",
+  price: 45,
+  discountPrice: 40,
+  countInStock: 20,
+  sku: "TW-W-008",
+  category: "Top Wear",
+  brand: "FeminineWear",
+  sizes: ["S", "M", "L"],
+  colors: ["White", "Navy", "Lavender"],
+  collections: "Summer Collection",
+  material: "Viscose",
+  gender: "Women",
+  images: [
+    {
+      url: "http://localhost:9000/images/Black_Tshirt.webp", // ✅ Local image path
+      altText: "Ruffle-Sleeve Blouse",
+    },
+  ],
+  rating: 4.5,
+  numReviews: 19,
+},
+
   {
     name: "Classic Button-Up Shirt",
     description:
@@ -954,7 +955,7 @@ const products = [
     gender: "Women",
     images: [
       {
-        url: "https://picsum.photos/500/500?random=37",
+        url: "http://localhost:9000/images/Black_Tshirt.webp",
         altText: "Classic Button-Up Shirt",
       },
     ],

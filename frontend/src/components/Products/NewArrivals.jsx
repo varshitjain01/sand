@@ -1,43 +1,47 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const NewArrivals = () => {
+  const [newArrivals, setNewArrivals] = useState([]);
+
+  useEffect(() => {
+    const fetchNewArrivals = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`
+        );
+        setNewArrivals(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchNewArrivals(); // ✅ function is *called*, not just referenced
+  }, []);
+
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  // State to track if the mouse moved enough to be considered a drag
-  const [dragMoved, setDragMoved] = useState(false); 
+  const [dragMoved, setDragMoved] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollStart, setScrollStart] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const newArrivals = [
-    { _id: 1, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=1", altText: "Jacket" }] },
-    { _id: 2, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=2", altText: "Jacket" }] },
-    { _id: 3, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=3", altText: "Jacket" }] },
-    { _id: 4, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=4", altText: "Jacket" }] },
-    { _id: 5, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=5", altText: "Jacket" }] },
-    { _id: 6, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=6", altText: "Jacket" }] },
-    { _id: 7, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=7", altText: "Jacket" }] },
-    { _id: 8, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=8", altText: "Jacket" }] },
-    { _id: 9, name: "Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=9", altText: "Jacket" }] },
-  ];
-
   const updateScrollButtons = () => {
     const container = scrollRef.current;
     if (!container) return;
     const atStart = container.scrollLeft <= 0;
-    // Check if scrollLeft + clientWidth is greater than or equal to scrollWidth
-    const atEnd = Math.ceil(container.scrollLeft + container.clientWidth) >= container.scrollWidth; 
+    const atEnd =
+      Math.ceil(container.scrollLeft + container.clientWidth) >=
+      container.scrollWidth;
     setCanScrollLeft(!atStart);
     setCanScrollRight(!atEnd);
   };
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
-    // Reset dragMoved at the start of every click/drag
-    setDragMoved(false); 
+    setDragMoved(false);
     const container = scrollRef.current;
     setStartX(e.pageX - container.offsetLeft);
     setScrollStart(container.scrollLeft);
@@ -46,14 +50,8 @@ const NewArrivals = () => {
   const handleMouseLeave = () => setIsDragging(false);
 
   const handleMouseUp = (e) => {
-    if (dragMoved) {
-      // Prevent the default browser click behavior if a drag occurred
-      e.preventDefault(); 
-    }
-    // **********************************************
-    // FIX: Reset dragMoved so the next genuine click works
-    // **********************************************
-    setDragMoved(false); 
+    if (dragMoved) e.preventDefault();
+    setDragMoved(false);
     setIsDragging(false);
   };
 
@@ -63,8 +61,7 @@ const NewArrivals = () => {
     const container = scrollRef.current;
     const x = e.pageX - container.offsetLeft;
     const walk = x - startX;
-    // Detect drag movement with a small threshold (e.g., 5 pixels)
-    if (Math.abs(walk) > 5) setDragMoved(true); 
+    if (Math.abs(walk) > 5) setDragMoved(true);
     container.scrollLeft = scrollStart - walk;
     updateScrollButtons();
   };
@@ -78,7 +75,7 @@ const NewArrivals = () => {
     return () => {
       if (container) container.removeEventListener("scroll", updateScrollButtons);
     };
-  }, []);
+  }, [newArrivals]);
 
   return (
     <section className="py-16 px-4 lg:px-0">
@@ -92,14 +89,18 @@ const NewArrivals = () => {
           <button
             disabled={!canScrollLeft}
             className="p-2 rounded border bg-white text-black disabled:opacity-40"
-            onClick={() => scrollRef.current.scrollBy({ left: -300, behavior: "smooth" })}
+            onClick={() =>
+              scrollRef.current.scrollBy({ left: -300, behavior: "smooth" })
+            }
           >
             <FiChevronLeft className="text-2xl rounded" />
           </button>
           <button
             disabled={!canScrollRight}
             className="p-2 rounded border bg-white text-black disabled:opacity-40"
-            onClick={() => scrollRef.current.scrollBy({ left: 300, behavior: "smooth" })}
+            onClick={() =>
+              scrollRef.current.scrollBy({ left: 300, behavior: "smooth" })
+            }
           >
             <FiChevronRight className="text-2xl rounded" />
           </button>
@@ -125,8 +126,7 @@ const NewArrivals = () => {
             <Link
               to={`/product/${product._id}`}
               onClick={(e) => {
-                // block navigation when dragging is detected upon mouse up
-                if (dragMoved) e.preventDefault(); 
+                if (dragMoved) e.preventDefault();
               }}
             >
               <img

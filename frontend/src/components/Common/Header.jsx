@@ -5,7 +5,7 @@ import CartDrawer from '../Layout/CartDrawer'
 
 const Header = () => {
   return (
-    <header class="border-b border-gray-200">
+    <header className="border-b border-gray-200">
       <marquee>Shop Now!</marquee>
         {/* Topbar */}
         <Topbar />

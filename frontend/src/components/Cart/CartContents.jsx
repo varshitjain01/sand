@@ -1,66 +1,103 @@
-import React from 'react';
-import {RiDeleteBin3Line} from "react-icons/ri"
+import React from "react";
+import { RiDeleteBin3Line } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { updateCartItemQuantity, removeFromCart } from "../../redux/slices/cartSlices"; // adjust the path
 
-const CartContents = () => {
-  const cartProducts = [
-    {
-      productId: 1,
-      name: "T-Shirt",
-      size: "M",
-      color: "Red",
-      quantity: 1,
-      price: 1500,
-      image: "https://picsum.photos/200?random=1",
-    },
-    {
-      productId: 2,
-      name: "Jeans",
-      size: "L",
-      color: "Blue",
-      quantity: 1,
-      price: 2000,
-      image: "https://picsum.photos/200?random=2",
-    },
-  ];
+const CartContents = ({ cart, userId, guestId }) => {
+  const dispatch = useDispatch();
+
+  // Handle adding or subtracting quantity
+  const handleAddToCart = (productId, delta, quantity, size, color) => {
+    const newQuantity = quantity + delta;
+    if (newQuantity >= 1) {
+      dispatch(
+        updateCartItemQuantity({
+          productId,
+          quantity: newQuantity,
+          guestId,
+          userId,
+          size,
+          color,
+        })
+      );
+    }
+  };
+
+  // Handle removing item from cart
+  const handleRemoveFromCart = (productId, size, color) => {
+    dispatch(removeFromCart({ productId, guestId, userId, size, color }));
+  };
+
+  if (!cart || !cart.products || cart.products.length === 0) {
+    return <p className="text-gray-500">Your cart is empty.</p>;
+  }
 
   return (
     <div className="p-4">
-      {cartProducts.map((product, index) => (
+      {cart.products.map((product, index) => (
         <div
           key={index}
           className="flex items-start justify-between py-4 border-b"
         >
-          {/* Product Image */}
+          {/* Product Image & Info */}
           <div className="flex items-start space-x-4">
             <img
               src={product.image}
               alt={product.name}
               className="w-20 h-24 rounded-md object-cover"
             />
-
-            {/* Product Info */}
             <div>
               <h3 className="font-semibold text-gray-800">{product.name}</h3>
               <p className="text-sm text-gray-500">
                 Size: {product.size} | Color: {product.color}
               </p>
+
+              {/* Quantity Controls */}
               <div className="flex items-center mt-2">
-<button className="border rounded px-2 py-1 text-xl font-medium">-</button>
-<span className="mx-4">{product.quantity}</span>
-<button className="border rounded px-2 py-1 text-xl font-medium">+</button>
+                <button
+                  onClick={() =>
+                    handleAddToCart(
+                      product.productId,
+                      -1,
+                      product.quantity,
+                      product.size,
+                      product.color
+                    )
+                  }
+                  className="border rounded px-2 py-1 text-xl font-medium"
+                >
+                  -
+                </button>
+                <span className="mx-4">{product.quantity}</span>
+                <button
+                  onClick={() =>
+                    handleAddToCart(
+                      product.productId,
+                      1,
+                      product.quantity,
+                      product.size,
+                      product.color
+                    )
+                  }
+                  className="border rounded px-2 py-1 text-xl font-medium"
+                >
+                  +
+                </button>
               </div>
             </div>
           </div>
-<div>
-  <p>
-    ${product.price.toLocaleString()}
-  </p>
-  <button>
-    <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red-600"/>
-  </button>
-</div>
-         
-          
+
+          {/* Price & Remove */}
+          <div className="flex flex-col items-end">
+            <p className="font-medium">${(product.price * product.quantity).toLocaleString()}</p>
+            <button
+              onClick={() =>
+                handleRemoveFromCart(product.productId, product.size, product.color)
+              }
+            >
+              <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red-600" />
+            </button>
+          </div>
         </div>
       ))}
     </div>
