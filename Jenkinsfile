@@ -3,14 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-    steps {
-        git branch: 'main',
-            url: 'https://github.com/varshitjain01/sand.git'
-    }
-}
-
-
         stage('Build Backend Image') {
             steps {
                 bat 'docker build -t sand-backend ./backend'
